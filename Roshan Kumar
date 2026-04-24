@@ -1,0 +1,137 @@
+# 🎯 Customer Segmentation Project
+
+## Folder Structure
+```
+customer_segmentation/
+├── data/
+│   └── customers.csv            ← Synthetic dataset (auto-generated)
+├── src/
+│   ├── generate_data.py         ← Generates synthetic Mall Customers dataset
+│   └── segmentation.py          ← Full pipeline: preprocess → cluster → visualize
+├── dashboard/
+│   └── app.py                   ← Streamlit interactive dashboard
+├── output/
+│   ├── elbow_curve.png          ← Elbow + Silhouette plots
+│   ├── scatter_clusters.png     ← Cluster scatter plots
+│   ├── segment_distribution.png ← Pie + bar distributions
+│   └── segmented_customers.csv  ← Final labeled dataset
+├── requirements.txt
+└── README.md
+```
+
+## Quick Start
+```bash
+pip install -r requirements.txt
+cd customer_segmentation
+python src/generate_data.py     # Step 1: Generate data
+python src/segmentation.py      # Step 2: Run clustering & save output
+streamlit run dashboard/app.py  # Step 3: Launch dashboard
+```
+
+---
+
+## 🎓 Viva Questions & Answers
+
+### Q1: What is Clustering?
+**A:** Clustering is an **unsupervised machine learning** technique that groups data points
+based on similarity, without using pre-labeled categories. It discovers hidden natural
+groupings in data. In our project, customers with similar age, income, and spending behavior
+are grouped together automatically.
+
+---
+
+### Q2: Why K-Means? Why not another algorithm?
+**A:** K-Means is chosen because:
+- **Simple and interpretable** — business teams can understand "5 types of customers"
+- **Fast and scalable** — works well for 100–100,000 records
+- **Works well with numeric features** — all our features (age, income, score) are numeric
+- **Widely accepted** in customer analytics industry
+
+Alternatives like DBSCAN suit irregular shapes; Hierarchical suits dendrograms — but
+K-Means is the industry standard for customer segmentation.
+
+---
+
+### Q3: How does the Elbow Method work?
+**A:** We run K-Means for k = 2 to 10 and plot **Inertia (WCSS)** — the sum of squared
+distances from each point to its cluster center. As k increases:
+- Inertia always decreases
+- The rate of decrease slows sharply at the **"elbow point"**
+- This elbow is the optimal k — beyond it, extra clusters add minimal value
+
+We also use the **Silhouette Score** (0–1) to confirm — higher = better separation.
+In our dataset, k=5 is the elbow.
+
+---
+
+### Q4: What is WCSS / Inertia?
+**A:** WCSS = Within-Cluster Sum of Squares. For each cluster:
+WCSS = Σ (distance from each point to its cluster centroid)²
+Lower WCSS = tighter, more compact clusters.
+
+---
+
+### Q5: What preprocessing was done and why?
+**A:**
+| Step | Technique | Reason |
+|------|-----------|--------|
+| Missing values | Median imputation | Robust to outliers |
+| Gender encoding | LabelEncoder | K-Means needs numbers |
+| Feature scaling | StandardScaler | Prevents high-income values dominating distance calc |
+
+---
+
+### Q6: How is the dashboard connected to the model?
+**A:**
+```
+segmentation.py  →  output/segmented_customers.csv  →  dashboard/app.py
+   (Backend)              (Data bridge)                  (Frontend)
+```
+The Python clustering script (backend) writes results to a CSV.
+Streamlit (frontend) reads this CSV with `@st.cache_data` and displays it interactively.
+Filters in the sidebar update the charts in real time via Streamlit's reactive model.
+
+---
+
+### Q7: What is Frontend vs Backend in this project?
+**A:**
+- **Backend** = `src/segmentation.py` — data science logic, sklearn, pandas. Runs once.
+- **Frontend** = `dashboard/app.py` (Streamlit) — UI, charts, filters. Runs continuously.
+- **Data Layer** = `output/segmented_customers.csv` — the bridge between them.
+
+In production, the backend would be an API (Flask/FastAPI) and frontend would be React/Vue.
+
+---
+
+### Q8: What do the 5 segments mean?
+**A:**
+| Segment | Age | Income | Spend | Strategy |
+|---------|-----|--------|-------|----------|
+| Young Budget Shoppers | 18–28 | Low | Low | Loyalty programs |
+| Senior Moderates | 50–70 | Mid | Mid | Stability-focused offers |
+| Middle-Class Regulars | 28–45 | Mid | Mid | Cross-sell campaigns |
+| Affluent Savers | 40–60 | High | Low | Premium nudge campaigns |
+| Premium Spenders | 25–40 | High | High | VIP treatment, exclusives |
+
+---
+
+### Q9: How would you improve this project?
+**A:**
+1. Use real transactional data (RFM: Recency, Frequency, Monetary)
+2. Try DBSCAN or Gaussian Mixture Models
+3. Add PCA for dimensionality reduction before clustering
+4. Deploy dashboard on Streamlit Cloud or AWS
+5. Connect to a live database instead of CSV
+
+---
+
+### Q10: What is the Silhouette Score?
+**A:** It measures how well each point fits its own cluster vs. neighboring clusters.
+- Range: -1 to +1
+- Score > 0.5 = good clustering
+- Our k=5 achieves ~0.45–0.55, acceptable for real-world multi-feature data
+
+---
+
+*Built for Customer Analytics · K-Means Segmentation · Python + Streamlit*
+Author :- Roshan Kumar
